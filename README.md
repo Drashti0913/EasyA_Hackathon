@@ -105,54 +105,68 @@ Block Explorer: https://coston2-explorer.flare.network/
 ### FTSO Integration 
 The platform leverages Flare's Time Series Oracle for:
 
- 1.Real-time price feeds across all asset categories
+  1.Real-time price feeds across all asset categories
  
- 2. Decentralized price discovery
+  2. Decentralized price discovery
   
- 3. High-frequency price updates
+  3. High-frequency price updates
     
- 4.Cross-asset price correlations
+  4.Cross-asset price correlations
 
 ### Supported FTSO Feeds
 
- -Crypto: BTC/USD, ETH/USD, XRP/USD, ADA/USD, DOT/USD, SOL/USD
- -Stocks: AAPL, GOOGL, MSFT, AMZN, TSLA, META, NFLX, NVDA
- -Metals: XAU/USD, XAG/USD, XPT/USD, XPD/USD
+  -Crypto: BTC/USD, ETH/USD, XRP/USD, ADA/USD, DOT/USD, SOL/USD
+ 
+  -Stocks: AAPL, GOOGL, MSFT, AMZN, TSLA, META, NFLX, NVDA
+ 
+  -Metals: XAU/USD, XAG/USD, XPT/USD, XPD/USD
 
 ### Security Features
 
- -Client-side Only: No backend servers or databases
- -MetaMask Integration: Secure wallet connection
- -Testnet Environment: No real funds at risk
- -Transaction Verification: All trades verified on-chain
- -Network Validation: Automatic network switching
+  -Client-side Only: No backend servers or databases
+ 
+  -MetaMask Integration: Secure wallet connection
+ 
+  -Testnet Environment: No real funds at risk
+ 
+  -Transaction Verification: All trades verified on-chain
+ 
+  -Network Validation: Automatic network switching
 
 ### File Structure
 defi-multi-asset-trading/
 │
-├── index.html              # Main application file
-├── README.md              # Project documentation
+├── index.html               # Main application file
+├── README.md                # Project documentation
 ├── assets/
-│   ├── images/           # UI images and icons
-│   └── styles/           # Additional CSS files
+│   ├── images/              # UI images and icons
+│   └── styles/              # Additional CSS files
 └── docs/
-    ├── API.md            # API documentation
-    ├── DEPLOYMENT.md     # Deployment guide
-    └── CONTRIBUTING.md   # Contribution guidelines
+    ├── API.md              # API documentation
+    ├── DEPLOYMENT.md       # Deployment guide
+    └── CONTRIBUTING.md     # Contribution guidelines
 
  ### Browser Compatibility 
- -Chrome: v90+
- -Firefox: v88+
- -Safari: v14+
- -Edge: v90+
- -Mobile: iOS Safari, Chrome Mobile
+ 
+  -Chrome: v90+
+ 
+  -Firefox: v88+
+ 
+  -Safari: v14+
+ 
+  -Edge: v90+
+ 
+  -Mobile: iOS Safari, Chrome Mobile
 
 ### Known Limitations
 
--Testnet Only: Currently operates on Coston2 testnet
--Mock Backend: Simulated API responses for demonstration
--Limited Assets: Predefined set of tradeable assets
--Demo Transactions: No actual blockchain transactions in current version
+ -Testnet Only: Currently operates on Coston2 testnet
+
+ -Mock Backend: Simulated API responses for demonstration
+
+ -Limited Assets: Predefined set of tradeable assets
+ 
+ -Demo Transactions: No actual blockchain transactions in current version
 
 ### Development Roadmap
  **Phase 1 (Current)**
