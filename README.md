@@ -49,3 +49,12 @@ A decentralized finance (DeFi) trading platform that enables users to trade cryp
 ```bash
    git clone https://github.com/your-username/defi-multi-asset-trading.git
    cd defi-multi-asset-trading
+2.**Open the application**
+- open index.html in a web browser
+-or serve via a local web server:
+```bash   # Using Python
+   python -m http.server 8000
+   
+   # Using Node.js
+   npx serve .
+
