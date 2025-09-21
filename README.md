@@ -86,7 +86,7 @@ A decentralized finance (DeFi) trading platform that enables users to trade cryp
     - Review the price calculation and total cost
     - Click "Buy Assets" and "Sell Assets" to execute
     - Monitor transcation status in real-time
-    ```
+
     
  4.**Portfolio Management**
  - View your holdings in portfolio section
@@ -109,11 +109,48 @@ The platform leverages Flare's Time Series Oracle for:
 -High-frequency price updates
 -Cross-asset price correlations
 
-###Supported FTSO Feeds
+
+### Supported FTSO Feeds
 
 -Crypto: BTC/USD, ETH/USD, XRP/USD, ADA/USD, DOT/USD, SOL/USD
 -Stocks: AAPL, GOOGL, MSFT, AMZN, TSLA, META, NFLX, NVDA
 -Metals: XAU/USD, XAG/USD, XPT/USD, XPD/USD
+
+### Security Features
+
+-Client-side Only: No backend servers or databases
+-MetaMask Integration: Secure wallet connection
+-Testnet Environment: No real funds at risk
+-Transaction Verification: All trades verified on-chain
+-Network Validation: Automatic network switching
+
+### File Structure
+defi-multi-asset-trading/
+│
+├── index.html              # Main application file
+├── README.md              # Project documentation
+├── assets/
+│   ├── images/           # UI images and icons
+│   └── styles/           # Additional CSS files
+└── docs/
+    ├── API.md            # API documentation
+    ├── DEPLOYMENT.md     # Deployment guide
+    └── CONTRIBUTING.md   # Contribution guidelines
+
+ ### Browser Compatibility 
+ -Chrome: v90+
+-Firefox: v88+
+-Safari: v14+
+-Edge: v90+
+-Mobile: iOS Safari, Chrome Mobile
+
+### Known Limitations
+
+Testnet Only: Currently operates on Coston2 testnet
+Mock Backend: Simulated API responses for demonstration
+Limited Assets: Predefined set of tradeable assets
+Demo Transactions: No actual blockchain transactions in current version
+
 
 
 
