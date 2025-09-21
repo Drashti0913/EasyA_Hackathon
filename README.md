@@ -105,13 +105,13 @@ Block Explorer: https://coston2-explorer.flare.network/
 ### FTSO Integration 
 The platform leverages Flare's Time Series Oracle for:
 
-  1.Real-time price feeds across all asset categories
+   -Real-time price feeds across all asset categories
  
-  2. Decentralized price discovery
+   -Decentralized price discovery
   
-  3. High-frequency price updates
+   -High-frequency price updates
     
-  4.Cross-asset price correlations
+   -Cross-asset price correlations
 
 ### Supported FTSO Feeds
 
@@ -172,69 +172,96 @@ defi-multi-asset-trading/
  **Phase 1 (Current)**
 
  Multi-asset category selection
+ 
  FTSO price integration
+ 
  Basic trading interface
+ 
  Portfolio tracking
 
  **Phase 2 (Planned)**
 
  Real blockchain transactions
+ 
  Advanced charting
+ 
  Price alerts
+ 
  Trading history export
 
  **Phase 3 (Future)**
 
  Mainnet deployment
+ 
  Additional asset categories
+ 
  Advanced order types
+ 
  Social trading features
  
  ### Contributing
 
 Fork the repository
+
 Create a feature branch (git checkout -b feature/amazing-feature)
+
 Commit your changes (git commit -m 'Add amazing feature')
+
 Push to the branch (git push origin feature/amazing-feature)
+
 Open a Pull Request
 
 ### Testing
 **Manual Testing Checklist**
 
  Wallet connection/disconnection
+ 
  Asset category selection
+ 
  Buy/sell trade execution
+ 
  Portfolio updates
+ 
  Price refresh functionality
+ 
  Mobile responsiveness
 
 ### Test Coverage
 
 Unit tests for trading logic
+
 Integration tests for FTSO connectivity
+
 E2E tests for user workflows
+
 ### Troubleshooting
 **Common Issues**
 **MetaMask Not Detected**
 
 Ensure MetaMask extension is installed and enabled
+
 Refresh the page and try again
 
 **Network Switch Failed**
 
 Manually add Coston2 network to MetaMask
+
 Check network configuration details above
 
 **Transaction Failed**
 
 Verify sufficient C2FLR balance
+
 Check network connectivity
+
 Retry after a few seconds
 
 **Price Data Not Loading**
 
 Check FTSO network status
+
 Refresh the application
+
 Verify testnet connectivity
 
 ### License
@@ -245,14 +272,19 @@ IMPORTANT: This is a testnet demonstration application. No real funds are involv
 For questions, issues, or contributions:
 
 Create an issue on GitHub
+
 Join our community discussions
+
 Check the documentation in /docs
 
 ### Acknowledgments
 
 Flare Network team for FTSO infrastructure
+
 MetaMask for wallet integration
+
 Ethers.js for blockchain connectivity
+
 The DeFi community for inspiration
 ```
 
