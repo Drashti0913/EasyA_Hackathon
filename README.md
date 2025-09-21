@@ -151,21 +151,21 @@ defi-multi-asset-trading/
 -Demo Transactions: No actual blockchain transactions in current version
 
 ### Development Roadmap
- Phase 1 (Current)
+ **Phase 1 (Current)**
 
  Multi-asset category selection
  FTSO price integration
  Basic trading interface
  Portfolio tracking
 
- Phase 2 (Planned)
+ **Phase 2 (Planned)**
 
  Real blockchain transactions
  Advanced charting
  Price alerts
  Trading history export
 
- Phase 3 (Future)
+ **Phase 3 (Future)**
 
  Mainnet deployment
  Additional asset categories
@@ -181,7 +181,7 @@ Push to the branch (git push origin feature/amazing-feature)
 Open a Pull Request
 
 ### Testing
-Manual Testing Checklist
+**Manual Testing Checklist**
 
  Wallet connection/disconnection
  Asset category selection
@@ -190,30 +190,30 @@ Manual Testing Checklist
  Price refresh functionality
  Mobile responsiveness
 
-Test Coverage
+### Test Coverage
 
 Unit tests for trading logic
 Integration tests for FTSO connectivity
 E2E tests for user workflows
 ### Troubleshooting
-Common Issues
-MetaMask Not Detected
+**Common Issues**
+**MetaMask Not Detected**
 
 Ensure MetaMask extension is installed and enabled
 Refresh the page and try again
 
-Network Switch Failed
+**Network Switch Failed**
 
 Manually add Coston2 network to MetaMask
 Check network configuration details above
 
-Transaction Failed
+**Transaction Failed**
 
 Verify sufficient C2FLR balance
 Check network connectivity
 Retry after a few seconds
 
-Price Data Not Loading
+**Price Data Not Loading**
 
 Check FTSO network status
 Refresh the application
