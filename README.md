@@ -49,6 +49,7 @@ A decentralized finance (DeFi) trading platform that enables users to trade cryp
 ```bash
    git clone https://github.com/your-username/defi-multi-asset-trading.git
    cd defi-multi-asset-trading
+```
 2.**Open the application**
 - open index.html in a web browser
 -or serve via a local web server:
@@ -57,4 +58,57 @@ A decentralized finance (DeFi) trading platform that enables users to trade cryp
    
    # Using Node.js
    npx serve .
+```
+3.**Connect your wallet**
+-click " Connect MetaMask"
+-  Approve network switch to coston 2
+-  confirm wallet connection
+    
+### Usage Guide
+
+1.**Wallet Connection**
+- Click the "Connect MetaMask" button
+- Approve the connection request
+- The platform will automatically switch to Flare Coston2 testnet
+- Your wallet address and balance will be displayed
+  
+2.**Asset Selection**
+  - Select desired asset categories using checkboxes:
+  - Cryptocurrency
+  - Stocks
+  -Precious metals
+  - choose specific assets from ythe dropdown menu
+  -Asset prices update automatically via FTSO
+    
+3.**Trading**
+    - Toggle between "Buy" and "Sell" modes
+    - Enter the quantity you want to trade
+    - Review the price calculation and total cost
+    - Click "Buy Assets" and "Sell Assets" to execute
+    - Monitor transcation status in real-time
+    ```
+ 4.**Portfolio Management**
+ - View your holdings in portfolio section
+ - Track profit/loss for each position
+ - Monitor average purchase prices
+ - See overall portfolio performance
+
+### Network Configuration
+**Flare Coston2 Testnet Details**
+Network Name: Flare Testnet Coston2
+RPC URL: https://coston2-api.flare.network/ext/C/rpc
+Chain ID: 114 (0x72)
+Currency Symbol: C2FLR
+Block Explorer: https://coston2-explorer.flare.network/
+```
+### FTSO Integration 
+
+
+
+   
+   
+
+    
+  
+
 
