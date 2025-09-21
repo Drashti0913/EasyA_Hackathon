@@ -87,6 +87,7 @@ A decentralized finance (DeFi) trading platform that enables users to trade cryp
     - Click "Buy Assets" and "Sell Assets" to execute
     - Monitor transcation status in real-time
     ```
+    
  4.**Portfolio Management**
  - View your holdings in portfolio section
  - Track profit/loss for each position
@@ -100,8 +101,20 @@ RPC URL: https://coston2-api.flare.network/ext/C/rpc
 Chain ID: 114 (0x72)
 Currency Symbol: C2FLR
 Block Explorer: https://coston2-explorer.flare.network/
-```
+
 ### FTSO Integration 
+The platform leverages Flare's Time Series Oracle for:
+-Real-time price feeds across all asset categories
+-Decentralized price discovery
+-High-frequency price updates
+-Cross-asset price correlations
+
+###Supported FTSO Feeds
+
+-Crypto: BTC/USD, ETH/USD, XRP/USD, ADA/USD, DOT/USD, SOL/USD
+-Stocks: AAPL, GOOGL, MSFT, AMZN, TSLA, META, NFLX, NVDA
+-Metals: XAU/USD, XAG/USD, XPT/USD, XPD/USD
+
 
 
 
