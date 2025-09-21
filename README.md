@@ -109,7 +109,6 @@ The platform leverages Flare's Time Series Oracle for:
 -High-frequency price updates
 -Cross-asset price correlations
 
-
 ### Supported FTSO Feeds
 
 -Crypto: BTC/USD, ETH/USD, XRP/USD, ADA/USD, DOT/USD, SOL/USD
