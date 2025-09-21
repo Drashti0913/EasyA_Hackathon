@@ -106,8 +106,11 @@ Block Explorer: https://coston2-explorer.flare.network/
 The platform leverages Flare's Time Series Oracle for:
 
  1.Real-time price feeds across all asset categories
+ 
  2. Decentralized price discovery
+  
  3. High-frequency price updates
+    
  4.Cross-asset price correlations
 
 ### Supported FTSO Feeds
