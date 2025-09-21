@@ -1,0 +1,14 @@
+node_modules/
+.env
+.DS_Store
+logs/
+*.log
+dist/
+build/
+cache/
+artifacts/
+typechain-types/
+coverage/
+.nyc_output/
+.coverage_artifacts/
+.coverage_cache/

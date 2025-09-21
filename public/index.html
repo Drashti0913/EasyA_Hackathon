@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 DeFi Stock Trading Platform</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .metamask-warning {
+            background: #fef2f2;
+            border: 2px solid #ef4444;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #991b1b;
+            text-align: center;
+            display: none;
+        }
+
+        .metamask-warning a {
+            color: #dc2626;
+            font-weight: bold;
+        }
+
+        .section {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .section h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .wallet-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected {
+            background: #10b981;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .wallet-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn.success {
+            background: linear-gradient(45deg, #10b981, #059669);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn.sell {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .disconnect-btn {
+            background: linear-gradient(45deg, #ef4444, #dc2626) !important;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3) !important;
+        }
+
+        .trade-mode-toggle {
+            display: flex;
+            background: #e2e8f0;
+            border-radius: 25px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .trade-mode-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 20px;
+            background: transparent;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .trade-mode-btn.active {
+            background: white;
+            color: #2d3748;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .trade-mode-btn.active.buy {
+            color: #059669;
+        }
+
+        .trade-mode-btn.active.sell {
+            color: #dc2626;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .price-display {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #0ea5e9;
+        }
+
+        .price-display.sell-mode {
+            background: linear-gradient(135deg, #fef2f2, #fee2e2);
+            border-left-color: #ef4444;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .price-row:last-child {
+            margin-bottom: 0;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: #0369a1;
+            border-top: 2px solid #bae6fd;
+            padding-top: 10px;
+        }
+
+        .price-row.sell-total {
+            color: #dc2626;
+            border-top-color: #fecaca;
+        }
+
+        .profit-loss-info {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 15px;
+            font-size: 0.95rem;
+        }
+
+        .profit {
+            color: #065f46;
+            font-weight: 600;
+        }
+
+        .loss {
+            color: #991b1b;
+            font-weight: 600;
+        }
+
+        .balance-info {
+            background: #f0fdf4;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #22c55e;
+        }
+
+        .disconnect-warning {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: #fef3c7;
+            color: #92400e;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            border-left: 3px solid #f59e0b;
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            word-wrap: break-word;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .status-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .connection-status {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .connection-online {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .connection-offline {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .stock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stock-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .stock-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .stock-card h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .stock-price {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #10b981;
+            margin-bottom: 8px;
+        }
+
+        .stock-change {
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .stock-change.positive {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .stock-change.negative {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .buy-btn-container .btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2rem;
+            border-radius: 15px;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .holding-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #10b981;
+        }
+
+        .holding-card h4 {
+            margin: 0 0 10px 0;
+            color: #2d3748;
+        }
+
+        .holding-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .holding-label {
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .holding-value {
+            color: #2d3748;
+        }
+
+        .holding-profit-loss {
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .holding-profit-loss.profit {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .holding-profit-loss.loss {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .portfolio-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left: 3px solid #667eea;
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .available-shares {
+            color: #6b7280;
+            font-weight: normal;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+
+        .demo-badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            color: #ffffff;
+        }
+
+        /* AI Recommendation Styles */
+        .market-sentiment-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .sentiment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .sentiment-overview {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .sentiment-gauge {
+            text-align: center;
+        }
+
+        .gauge-container {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            position: relative;
+            background: conic-gradient(from 180deg, #ef4444 0deg, #f59e0b 72deg, #eab308 144deg, #84cc16 216deg, #10b981 288deg, #ef4444 360deg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-container::before {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .gauge-label {
+            position: relative;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .sentiment-label {
+            margin-top: 10px;
+            font-weight: 600;
+            color: #4b5563;
+        }
+
+        .signal-distribution {
+            flex: 1;
+        }
+
+        .signal-bar {
+            display: flex;
+            height: 40px;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .signal-segment {
+            transition: width 0.5s ease;
+        }
+
+        .signal-segment.buy {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .signal-segment.hold {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        .signal-segment.sell {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .signal-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .buy-label {
+            color: #059669;
+        }
+
+        .hold-label {
+            color: #d97706;
+        }
+
+        .sell-label {
+            color: #dc2626;
+        }
+
+        .ai-recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .ai-recommendation-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-recommendation-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .ai-recommendation-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .ai-recommendation-card.strong-buy::before {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+
+        .ai-recommendation-card.buy::before {
+            background: linear-gradient(90deg, #84cc16, #65a30d);
+        }
+
+        .ai-recommendation-card.hold::before {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+
+        .ai-recommendation-card.sell::before {
+            background: linear-gradient(90deg, #f87171, #ef4444);
+        }
+
+        .ai-recommendation-card.strong-sell::before {
+            background: linear-gradient(90deg, #ef4444, #b91c1c);
+        }
+
+        .recommendation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stock-info h4 {
+            margin: 0;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+
+        .stock-ticker {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+          /* AI Portfolio Analyzer Section */
+        .portfolio-analyzer-section {
+            background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+            border: 2px solid #0ea5e9;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .portfolio-analyzer-section h2 {
+            color: #0369a1;
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+        }
+
+        .portfolio-analyzer-section p {
+            color: #0f172a;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+
+        .recommendation-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .recommendation-badge.strong-buy {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .recommendation-badge.buy {
+            background: #ecfccb;
+            color: #365314;
+        }
+
+        .recommendation-badge.hold {
+            background: #fef3c7;
+            color: #78350f;
+        }
+
+        .recommendation-badge.sell {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .recommendation-badge.strong-sell {
+            background: #fecaca;
+            color: #7f1d1d;
+        }
+
+        .price-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .current-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .confidence-meter {
+            margin-bottom: 15px;
+        }
+
+        .confidence-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+
+        .confidence-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #2563eb);
+            transition: width 0.5s ease;
+        }
+
+        .ai-reasoning {
+            font-size: 0.9rem;
+            color: #4b5563;
+            line-height: 1.4;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #6b7280;
+        }
+
+        .close-modal:hover {
+            color: #2d3748;
+        }
+
+        .technical-indicators {
+            margin: 20px 0;
+        }
+
+        .indicator-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .indicator-card {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .indicator-label {
+            display: block;
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+
+        .indicator-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .analysis-reasons {
+            margin: 20px 0;
+        }
+
+        .analysis-reasons ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .analysis-reasons li {
+            padding: 10px;
+            margin: 8px 0;
+            background: #f0f9ff;
+            border-left: 3px solid #3b82f6;
+            border-radius: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .action-buttons .btn {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .wallet-status {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .stock-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 DeFi Stock Trading Platform</h1>
+            <p>Trade tokenized stocks using blockchain technology with AI insights</p>
+            <span class="demo-badge">TESTNET DEMO</span>
+        </div>
+
+        <!-- MetaMask Warning -->
+        <div id="metamaskWarning" class="metamask-warning">
+            <strong>⚠️ MetaMask Not Detected!</strong><br>
+            Please install <a href="https://metamask.io/download/" target="_blank">MetaMask</a> to use this platform.
+            <br>After installation, refresh this page.
+        </div>
+
+        <!-- Database Connection Status -->
+        <div id="connectionStatus" class="connection-status connection-offline">
+            Checking database connection...
+        </div>
+
+        <!-- Wallet Section -->
+        <div class="section">
+            <h2>💼 Wallet Connection</h2>
+            <div class="wallet-status">
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="walletStatus">Wallet Disconnected</span>
+                </div>
+                <div class="wallet-buttons">
+                    <button class="btn" id="connectBtn" onclick="connectWallet()">
+                        Connect MetaMask
+                    </button>
+                    <button class="btn disconnect-btn hidden" id="disconnectBtn" onclick="disconnectWallet()">
+                        Disconnect
+                    </button>
+                </div>
+            </div>
+            <div id="walletInfo" class="balance-info hidden">
+                <strong>Address:</strong> <span id="walletAddress">Not connected</span><br>
+                <strong>Balance:</strong> <span id="walletBalance">0.00</span> FLR<br>
+                <div id="userProfileInfo" class="hidden">
+                    <strong>Total Trades:</strong> <span id="totalTrades">0</span><br>
+                    <strong>Total Volume:</strong> $<span id="totalVolume">0.00</span><br>
+                    <strong>Total P/L:</strong> $<span id="totalProfit">0.00</span>
+                </div>
+                <div class="disconnect-warning">
+                    Remember to disconnect your wallet when done for security
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Overview -->
+        <div class="section">
+            <h2>📈 Market Overview</h2>
+            <div id="stockGrid" class="stock-grid">
+                <div class="status-message status-info">Loading market data...</div>
+            </div>
+        </div>
+
+        <!-- AI Recommendations Section -->
+        <div class="section">
+            <h2>📊 AI Trading Recommendations</h2>
+            <div id="aiRecommendations" class="ai-recommendations-grid">
+                <div class="status-message status-info">Loading AI recommendations...</div>
+            </div>
+        </div>
+                <!-- Our New Feature Button -->
+        <div style="text-align: center; margin: 30px 0;">
+            <button class="btn"     onclick="window.location.href='http://127.0.0.1:5500/public/porfolio.html'"
+ style="background: linear-gradient(45deg, #06b6d4, #0ea5e9); box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3); padding: 20px 40px; font-size: 1.3rem; border-radius: 15px; color: white; font-weight: 700;">
+                🚀 Launch AI Portfolio Builder
+            </button>
+            <p style="margin-top: 10px; color: #666; font-size: 0.95rem;">
+                Discover our latest AI-powered investment analysis tool
+            </p>
+        </div>
+
+        <!-- AI Market Sentiment Section -->
+        <div class="section" id="aiSentimentSection">
+            <h2>🤖 AI Market Sentiment Analysis</h2>
+            <div class="market-sentiment-card">
+                <div class="sentiment-header">
+                    <h3>Market Overview</h3>
+                    <button class="btn" onclick="refreshAIRecommendations()">🔄 Refresh</button>
+                </div>
+                <div class="sentiment-overview">
+                    <div class="sentiment-gauge">
+                        <div class="gauge-container">
+                            <div class="gauge-label" id="sentimentScore">--</div>
+                        </div>
+                        <div class="sentiment-label" id="marketMood">Loading...</div>
+                    </div>
+                    <div class="signal-distribution">
+                        <div class="signal-bar">
+                            <div class="signal-segment buy" id="buySignals" style="width: 33%"></div>
+                            <div class="signal-segment hold" id="holdSignals" style="width: 33%"></div>
+                            <div class="signal-segment sell" id="sellSignals" style="width: 34%"></div>
+                        </div>
+                        <div class="signal-labels">
+                            <span class="buy-label">BUY (<span id="buyCount">0</span>)</span>
+                            <span class="hold-label">HOLD (<span id="holdCount">0</span>)</span>
+                            <span class="sell-label">SELL (<span id="sellCount">0</span>)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trading Section -->
+        <div class="section">
+            <h2>💹 Stock Trading</h2>
+
+            <!-- Trade Mode Toggle -->
+            <div class="trade-mode-toggle">
+                <button class="trade-mode-btn active buy" id="buyModeBtn" onclick="setTradeMode('buy')">
+                    Buy
+                </button>
+                <button class="trade-mode-btn sell" id="sellModeBtn" onclick="setTradeMode('sell')">
+                    Sell
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label for="stockSelect">Select Stock:</label>
+                <select id="stockSelect" onchange="updatePrice()">
+                    <option value="">Choose a stock to trade...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="quantity">
+                    <span id="quantityLabel">Number of Shares:</span>
+                    <span id="availableShares" class="available-shares hidden"></span>
+                </label>
+                <input type="number" id="quantity" min="1" max="1000" placeholder="Enter quantity"
+                    oninput="updatePrice()">
+            </div>
+
+            <div id="priceDisplay" class="price-display hidden">
+                <div class="price-row">
+                    <span>Current Price:</span>
+                    <span id="currentPrice">$0.00</span>
+                </div>
+                <div class="price-row">
+                    <span>Quantity:</span>
+                    <span id="quantityDisplay">0</span>
+                </div>
+                <div class="price-row" id="totalRow">
+                    <span id="totalLabel">Total Amount:</span>
+                    <span id="totalAmount">$0.00</span>
+                </div>
+                <div id="profitLossInfo" class="profit-loss-info hidden">
+                    <div id="profitLossText"></div>
+                </div>
+            </div>
+
+            <div class="buy-btn-container">
+                <button class="btn success" id="tradeBtn" onclick="executeTrade()" disabled>
+                    Buy Shares
+                </button>
+            </div>
+        </div>
+
+        <!-- Portfolio Section -->
+        <div class="section hidden" id="portfolioSection">
+            <h2>📋 Portfolio Overview</h2>
+
+            <div class="portfolio-stats hidden" id="portfolioStats">
+                <div class="stat-card">
+                    <div class="stat-title">Total Value</div>
+                    <div class="stat-value" id="portfolioTotalValue">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Cash Balance</div>
+                    <div class="stat-value" id="portfolioCashBalance">$0.00</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Holdings</div>
+                    <div class="stat-value" id="portfolioHoldingsCount">0</div>
+                </div>
+            </div>
+
+            <div id="portfolioContainer">
+                <div class="status-message status-info">Loading portfolio data...</div>
+            </div>
+
+            <button class="btn" onclick="refreshPortfolio()" style="margin-top: 20px;">
+                Refresh Portfolio
+            </button>
+        </div>
+
+        <!-- Status Section -->
+        <div class="section">
+            <h2>📋 Transaction Status</h2>
+            <div id="statusContainer">
+                <div class="status-message status-info">
+                    Ready to trade! Connect your MetaMask wallet and select a stock to begin.
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+        <!-- Individual Stock Analysis Modal -->
+        <div id="stockAnalysisModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeStockAnalysis()">&times;</span>
+                <h3 id="modalStockTitle">Stock Analysis</h3>
+
+                <div class="technical-indicators">
+                    <h4>Technical Indicators</h4>
+                    <div class="indicator-grid">
+                        <div class="indicator-card">
+                            <span class="indicator-label">RSI</span>
+                            <span class="indicator-value" id="rsiValue">-</span>
+                        </div>
+                        <div class="indicator-card">
+                            <span class="indicator-label">MACD</span>
+                            <span class="indicator-value" id="macdValue">-</span>
+                        </div>
+                        <div class="indicator-card">
+                            <span class="indicator-label">BB Position</span>
+                            <span class="indicator-value" id="bbPosition">-</span>
+                        </div>
+                        <div class="indicator-card">
+                            <span class="indicator-label">Volume Trend</span>
+                            <span class="indicator-value" id="volumeTrend">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analysis-reasons">
+                    <h4>Analysis Reasoning</h4>
+                    <ul id="analysisReasons"></ul>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn success" onclick="quickBuy()">Quick Buy</button>
+                    <button class="btn sell" onclick="quickSell()">Quick Sell</button>
+                    <button class="btn" onclick="closeStockAnalysis()">Close</button>
+                </div>
+            </div>
+        </div>
+ 
+        <div class="footer">
+            <p>🔒 Secure • 🌐 Decentralized • ⚡ Fast</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                This is a <strong>TESTNET DEMO</strong>. No real money is involved.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let walletConnected = false;
+        let userAddress = '';
+        let userBalance = 0;
+        let currentStockPrice = 0;
+        let selectedStock = '';
+        let stockData = {};
+        let userProfile = null;
+        let userPortfolio = [];
+        let databaseOnline = false;
+        let currentTradeMode = 'buy';
+        let currentRecommendations = [];
+        let selectedStockForAnalysis = null;
+
+        // Check if MetaMask is available
+        function checkMetaMask() {
+            if (typeof window.ethereum === 'undefined') {
+                document.getElementById('metamaskWarning').style.display = 'block';
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('connectBtn').textContent = 'MetaMask Required';
+                return false;
+            }
+            return true;
+        }
+
+ 
+
+// Keep only this one:
+function showStatus(message, isError = false) {
+    updateStatus(message, isError ? 'error' : 'info');
+}
+
+        // Check if portfolio server is running
+        async function checkPortfolioServer() {
+            try {
+                const response = await fetch('http://localhost:3002/api/health');
+                if (response.ok) {
+                    portfolioServerRunning = true;
+                    return true;
+                }
+            } catch (error) {
+                console.log('Portfolio server not running on localhost:3002');
+            }
+            
+            portfolioServerRunning = false;
+            return false;
+        }
+
+
+
+// Open new feature page in new tab
+function openNewFeature() {
+    window.open('portfolio.html', '_blank');
+    updateStatus('Opening AI Portfolio Builder', 'info');
+}
+
+        // Initialize app
+        window.addEventListener('load', async function () {
+            console.log('🚀 DeFi Stock Trading Platform loaded!');
+            
+            // Check MetaMask availability
+            if (!checkMetaMask()) {
+                console.log('MetaMask not detected');
+                updateStatus('Please install MetaMask to use this platform', 'error');
+            } else {
+                console.log('MetaMask detected');
+                
+                // Check if already connected
+                if (window.ethereum.selectedAddress) {
+                    console.log('Already connected to:', window.ethereum.selectedAddress);
+                }
+                
+                // Listen for account changes
+                window.ethereum.on('accountsChanged', handleAccountsChanged);
+                window.ethereum.on('chainChanged', handleChainChanged);
+            }
+            
+            // Check database and load market data
+            checkDatabaseConnection();
+            loadMarketData();
+            loadAIRecommendations();
+
+            // Auto-refresh every 30 seconds
+            setInterval(() => {
+                loadMarketData();
+                loadAIRecommendations();
+                if (walletConnected) {
+                    loadUserData();
+                }
+            }, 30000);
+        });
+
+        // Handle account changes
+        function handleAccountsChanged(accounts) {
+            console.log('Accounts changed:', accounts);
+            if (accounts.length === 0) {
+                // User disconnected wallet
+                disconnectWallet();
+            } else if (accounts[0] !== userAddress) {
+                // User switched accounts
+                userAddress = accounts[0];
+                if (walletConnected) {
+                    updateStatus('Account changed. Reloading...', 'info');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }
+            }
+        }
+
+        // Handle chain changes
+        function handleChainChanged(chainId) {
+            console.log('Chain changed to:', chainId);
+            // Reload the page on chain change
+            window.location.reload();
+        }
+
+        // Set trade mode (buy or sell)
+        function setTradeMode(mode) {
+            currentTradeMode = mode;
+            
+            const buyBtn = document.getElementById('buyModeBtn');
+            const sellBtn = document.getElementById('sellModeBtn');
+            const tradeBtn = document.getElementById('tradeBtn');
+            const priceDisplay = document.getElementById('priceDisplay');
+            const totalRow = document.getElementById('totalRow');
+            const totalLabel = document.getElementById('totalLabel');
+            const quantityLabel = document.getElementById('quantityLabel');
+            
+            if (mode === 'buy') {
+                buyBtn.classList.add('active', 'buy');
+                sellBtn.classList.remove('active', 'sell');
+                tradeBtn.textContent = 'Buy Shares';
+                tradeBtn.className = 'btn success';
+                totalLabel.textContent = 'Total Cost:';
+                quantityLabel.textContent = 'Number of Shares:';
+                priceDisplay.classList.remove('sell-mode');
+                totalRow.classList.remove('sell-total');
+                document.getElementById('availableShares').classList.add('hidden');
+            } else {
+                sellBtn.classList.add('active', 'sell');
+                buyBtn.classList.remove('active', 'buy');
+                tradeBtn.textContent = 'Sell Shares';
+                tradeBtn.className = 'btn sell';
+                totalLabel.textContent = 'Total Proceeds:';
+                quantityLabel.textContent = 'Shares to Sell:';
+                priceDisplay.classList.add('sell-mode');
+                totalRow.classList.add('sell-total');
+            }
+            
+            // Reset form
+            document.getElementById('stockSelect').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('priceDisplay').classList.add('hidden');
+            document.getElementById('profitLossInfo').classList.add('hidden');
+            tradeBtn.disabled = true;
+            
+            updateStatus(`Switched to ${mode.toUpperCase()} mode. Select a stock to continue.`, 'info');
+        }
+
+        // Check database connection
+        async function checkDatabaseConnection() {
+            try {
+                const response = await fetch('/api/health');
+                if (response.ok) {
+                    const health = await response.json();
+                    databaseOnline = health.services.database === 'connected';
+
+                    const statusDiv = document.getElementById('connectionStatus');
+                    if (databaseOnline) {
+                        statusDiv.className = 'connection-status connection-online';
+                        statusDiv.textContent = `✅ Database connected - ${health.services.users} users registered`;
+                    } else {
+                        statusDiv.className = 'connection-status connection-offline';
+                        statusDiv.textContent = 'Database offline - using demo mode';
+                    }
+                } else {
+                    throw new Error('Server offline');
+                }
+            } catch (error) {
+                console.error('Database connection check failed:', error);
+                const statusDiv = document.getElementById('connectionStatus');
+                statusDiv.className = 'connection-status connection-offline';
+                statusDiv.textContent = 'Server offline - demo mode only';
+                databaseOnline = false;
+            }
+        }
+
+        // Load market data
+        async function loadMarketData() {
+            try {
+                const response = await fetch('/api/stocks');
+                if (!response.ok) throw new Error('Failed to fetch stocks');
+
+                const data = await response.json();
+                displayMarketOverview(data.stocks);
+                populateStockSelector(data.stocks);
+
+            } catch (error) {
+                console.error('Failed to load market data:', error);
+                updateStatus('Failed to load market data. Using demo mode.', 'error');
+            }
+        }
+
+        // Load and display AI recommendations
+        async function loadAIRecommendations() {
+            try {
+                const [recommendationsRes, sentimentRes] = await Promise.all([
+                    fetch('/api/ai/recommendations'),
+                    fetch('/api/ai/market-sentiment')
+                ]);
+
+                if (!recommendationsRes.ok || !sentimentRes.ok) {
+                    throw new Error('Failed to fetch AI data');
+                }
+
+                const recommendationsData = await recommendationsRes.json();
+                const sentimentData = await sentimentRes.json();
+
+                currentRecommendations = recommendationsData.recommendations;
+
+                displayMarketSentiment(sentimentData);
+                displayAIRecommendations(recommendationsData.recommendations);
+
+            } catch (error) {
+                console.error('Error loading AI recommendations:', error);
+                document.getElementById('aiRecommendations').innerHTML =
+                    '<div class="status-message status-error">Failed to load AI recommendations</div>';
+            }
+        }
+
+        // Display market sentiment overview
+        function displayMarketSentiment(sentiment) {
+            document.getElementById('sentimentScore').textContent = sentiment.sentimentScore;
+            document.getElementById('marketMood').textContent = sentiment.marketMood;
+
+            const total = sentiment.signals.bullish + sentiment.signals.bearish + sentiment.signals.neutral;
+            const buyWidth = (sentiment.signals.bullish / total) * 100;
+            const holdWidth = (sentiment.signals.neutral / total) * 100;
+            const sellWidth = (sentiment.signals.bearish / total) * 100;
+
+            document.getElementById('buySignals').style.width = `${buyWidth}%`;
+            document.getElementById('holdSignals').style.width = `${holdWidth}%`;
+            document.getElementById('sellSignals').style.width = `${sellWidth}%`;
+
+            document.getElementById('buyCount').textContent = sentiment.signals.bullish;
+            document.getElementById('holdCount').textContent = sentiment.signals.neutral;
+            document.getElementById('sellCount').textContent = sentiment.signals.bearish;
+        }
+
+        // Display AI recommendations grid
+        function displayAIRecommendations(recommendations) {
+            const container = document.getElementById('aiRecommendations');
+
+            if (!recommendations || recommendations.length === 0) {
+                container.innerHTML = '<div class="status-message status-error">No recommendations available</div>';
+                return;
+            }
+
+            container.innerHTML = recommendations.map(rec => {
+                const recClass = rec.recommendation.toLowerCase().replace(' ', '-');
+                const priceChangeClass = rec.analysis.priceChange.startsWith('+') ? 'positive' : 'negative';
+
+                return `
+            <div class="ai-recommendation-card ${recClass}" onclick="showStockAnalysis('${rec.symbol}')">
+                <div class="recommendation-header">
+                    <div class="stock-info">
+                        <h4>${rec.symbol}</h4>
+                        <div class="stock-ticker">${rec.name}</div>
+                    </div>
+                    <div class="recommendation-badge ${recClass}">
+                        ${rec.recommendation}
+                    </div>
+                </div>
+                
+                <div class="price-info">
+                    <div class="current-price">${rec.currentPrice.toFixed(rec.currentPrice < 1 ? 6 : 2)}</div>
+                    <div class="stock-change ${priceChangeClass}">
+                        ${rec.analysis.priceChange}
+                    </div>
+                </div>
+                
+                <div class="confidence-meter">
+                    <div class="confidence-label">Confidence: ${rec.confidence}%</div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: ${rec.confidence}%"></div>
+                    </div>
+                </div>
+                
+                <div class="ai-reasoning">
+                    <strong>AI Analysis:</strong> ${rec.reasons[0]}
+                </div>
+            </div>
+        `;
+            }).join('');
+        }
+
+        // Show detailed stock analysis modal
+        async function showStockAnalysis(symbol) {
+            try {
+                const response = await fetch(`/api/ai/recommendation/${symbol}`);
+                if (!response.ok) throw new Error('Failed to fetch analysis');
+
+                const analysis = await response.json();
+                selectedStockForAnalysis = analysis;
+
+                document.getElementById('modalStockTitle').textContent =
+                    `${analysis.symbol} - Detailed Analysis`;
+
+                document.getElementById('rsiValue').textContent =
+                    analysis.technicals.rsi.toFixed(2);
+                document.getElementById('macdValue').textContent =
+                    analysis.technicals.macd.histogram.toFixed(4);
+                document.getElementById('bbPosition').textContent =
+                    analysis.technicals.bollingerBands.position;
+                document.getElementById('volumeTrend').textContent =
+                    analysis.technicals.volume.trend.charAt(0).toUpperCase() +
+                    analysis.technicals.volume.trend.slice(1);
+
+                const reasonsList = document.getElementById('analysisReasons');
+                reasonsList.innerHTML = analysis.reasons.map(reason =>
+                    `<li>${reason}</li>`
+                ).join('');
+
+                document.getElementById('stockAnalysisModal').classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error loading stock analysis:', error);
+                updateStatus('Failed to load detailed analysis', 'error');
+            }
+        }
+
+        // Close stock analysis modal
+        function closeStockAnalysis() {
+            document.getElementById('stockAnalysisModal').classList.add('hidden');
+            selectedStockForAnalysis = null;
+        }
+
+        // Quick buy from recommendation
+        function quickBuy() {
+            if (!selectedStockForAnalysis) return;
+            setTradeMode('buy');
+            document.getElementById('stockSelect').value = selectedStockForAnalysis.symbol;
+            document.getElementById('quantity').value = 10;
+            closeStockAnalysis();
+            updatePrice();
+            document.querySelector('.section:nth-child(7)').scrollIntoView({
+                behavior: 'smooth'
+            });
+            updateStatus(`Ready to buy ${selectedStockForAnalysis.symbol} based on AI recommendation`, 'info');
+        }
+
+        // Quick sell from recommendation
+        function quickSell() {
+            if (!selectedStockForAnalysis) return;
+            setTradeMode('sell');
+            document.getElementById('stockSelect').value = selectedStockForAnalysis.symbol;
+            document.getElementById('quantity').value = 10;
+            closeStockAnalysis();
+            updatePrice();
+            document.querySelector('.section:nth-child(7)').scrollIntoView({
+                behavior: 'smooth'
+            });
+            updateStatus(`Ready to sell ${selectedStockForAnalysis.symbol} based on AI recommendation`, 'info');
+        }
+
+        // Refresh AI recommendations manually
+        function refreshAIRecommendations() {
+            loadAIRecommendations();
+            updateStatus('AI recommendations refreshed successfully', 'success');
+        }
+
+        // Display market overview
+        function displayMarketOverview(stocks) {
+            const grid = document.getElementById('stockGrid');
+
+            if (!stocks || stocks.length === 0) {
+                grid.innerHTML = '<div class="status-message status-error">No stock data available</div>';
+                return;
+            }
+
+            grid.innerHTML = stocks.map(stock => `
+                <div class="stock-card">
+                    <h3>${stock.symbol} - ${stock.name}</h3>
+                    <div class="stock-price">$${stock.price.toFixed(stock.price < 1 ? 6 : 2)}</div>
+                    <div class="stock-change ${stock.change >= 0 ? 'positive' : 'negative'}">
+                        ${stock.change >= 0 ? '+' : ''}${stock.change.toFixed(2)}%
+                    </div>
+                </div>
+            `).join('');
+
+            stocks.forEach(stock => {
+                stockData[stock.symbol] = stock;
+            });
+        }
+
+        // Populate stock selector
+        function populateStockSelector(stocks) {
+            const select = document.getElementById('stockSelect');
+            select.innerHTML = '<option value="">Choose a stock to trade...</option>';
+
+            if (!stocks || stocks.length === 0) return;
+
+            stocks.forEach(stock => {
+                const option = document.createElement('option');
+                option.value = stock.symbol;
+                option.textContent = `${stock.symbol} - ${stock.name} ($${stock.price.toFixed(stock.price < 1 ? 6 : 2)})`;
+                select.appendChild(option);
+            });
+        }
+
+        // Connect wallet
+        async function connectWallet() {
+            if (!checkMetaMask()) {
+                updateStatus('MetaMask is not installed. Please install it to continue.', 'error');
+                return;
+            }
+
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            const statusDot = document.getElementById('statusDot');
+            const walletStatus = document.getElementById('walletStatus');
+            const walletInfo = document.getElementById('walletInfo');
+
+            try {
+                connectBtn.disabled = true;
+                connectBtn.innerHTML = '<span class="loading"></span>Connecting...';
+
+                // Request account access
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+
+                if (accounts.length === 0) {
+                    throw new Error('No accounts found');
+                }
+
+                userAddress = accounts[0];
+                console.log('Connected to wallet:', userAddress);
+
+                // Verify balance with backend
+                const response = await fetch('/api/verify-balance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ walletAddress: userAddress })
+                });
+
+                if (response.ok) {
+                    const balanceData = await response.json();
+                    userBalance = balanceData.balance;
+
+                    if (balanceData.isNewUser) {
+                        updateStatus('Welcome! New account created with starting balance.', 'success');
+                    }
+                } else {
+                    throw new Error('Failed to verify balance');
+                }
+
+                walletConnected = true;
+
+                // Update UI
+                statusDot.classList.add('connected');
+                walletStatus.textContent = 'Wallet Connected';
+                document.getElementById('walletAddress').textContent =
+                    userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+                document.getElementById('walletBalance').textContent = userBalance.toFixed(2);
+
+                walletInfo.classList.remove('hidden');
+                connectBtn.classList.add('hidden');
+                disconnectBtn.classList.remove('hidden');
+
+                await loadUserData();
+
+                updateStatus('Wallet connected successfully! You can now start trading.', 'success');
+
+            } catch (error) {
+                console.error('Wallet connection failed:', error);
+                connectBtn.disabled = false;
+                connectBtn.innerHTML = 'Connect MetaMask';
+
+                let errorMessage = 'Failed to connect wallet.';
+                if (error.code === 4001) {
+                    errorMessage = 'Connection rejected. Please approve the connection in MetaMask.';
+                } else if (error.code === -32002) {
+                    errorMessage = 'Please open MetaMask and unlock your wallet.';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                updateStatus(errorMessage, 'error');
+            }
+        }
+
+        // Load user data
+        async function loadUserData() {
+            if (!walletConnected || !databaseOnline) return;
+
+            try {
+                const userResponse = await fetch(`/api/user/${userAddress}`);
+                if (userResponse.ok) {
+                    const userData = await userResponse.json();
+                    userProfile = userData.user;
+
+                    document.getElementById('userProfileInfo').classList.remove('hidden');
+                    document.getElementById('totalTrades').textContent = userData.user.totalTrades || 0;
+                    document.getElementById('totalVolume').textContent = (userData.user.totalVolume || 0).toFixed(2);
+                    document.getElementById('totalProfit').textContent = (userData.user.totalProfit || 0).toFixed(2);
+                }
+
+                await loadUserPortfolio();
+
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        // Load user portfolio
+        async function loadUserPortfolio() {
+            if (!walletConnected) return;
+
+            try {
+                const response = await fetch(`/api/user/${userAddress}/portfolio`);
+                if (!response.ok) throw new Error('Failed to load portfolio');
+
+                const portfolioData = await response.json();
+                userPortfolio = portfolioData.portfolio;
+
+                document.getElementById('portfolioSection').classList.remove('hidden');
+                document.getElementById('portfolioStats').classList.remove('hidden');
+                document.getElementById('portfolioTotalValue').textContent =
+                    `$${portfolioData.totalPortfolioValue.toFixed(2)}`;
+                document.getElementById('portfolioCashBalance').textContent =
+                    `$${portfolioData.balance.toFixed(2)}`;
+                document.getElementById('portfolioHoldingsCount').textContent =
+                    portfolioData.portfolio.length;
+
+                displayPortfolio(portfolioData);
+
+            } catch (error) {
+                console.error('Error loading portfolio:', error);
+            }
+        }
+
+        // Display portfolio
+        function displayPortfolio(portfolioData) {
+            const container = document.getElementById('portfolioContainer');
+
+            if (!portfolioData.portfolio || portfolioData.portfolio.length === 0) {
+                container.innerHTML = '<div class="status-message status-info">No holdings yet. Start trading to build your portfolio!</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="portfolio-grid">
+                    ${portfolioData.portfolio.map(holding => {
+                        const currentStock = stockData[holding.symbol];
+                        const currentPrice = currentStock ? currentStock.price : holding.averagePrice;
+                        const currentValue = holding.quantity * currentPrice;
+                        const profitLoss = currentValue - holding.totalInvested;
+                        const profitLossPercent = holding.totalInvested > 0 ? 
+                            (profitLoss / holding.totalInvested * 100) : 0;
+                        
+                        return `
+                        <div class="holding-card">
+                            <h4>${holding.symbol}</h4>
+                            <div class="holding-details">
+                                <span class="holding-label">Quantity:</span>
+                                <span class="holding-value">${holding.quantity}</span>
+                            </div>
+                            <div class="holding-details">
+                                <span class="holding-label">Avg Price:</span>
+                                <span class="holding-value">$${holding.averagePrice.toFixed(2)}</span>
+                            </div>
+                            <div class="holding-details">
+                                <span class="holding-label">Current Value:</span>
+                                <span class="holding-value">$${currentValue.toFixed(2)}</span>
+                            </div>
+                            <div class="holding-profit-loss ${profitLoss >= 0 ? 'profit' : 'loss'}">
+                                ${profitLoss >= 0 ? '+' : ''}$${profitLoss.toFixed(2)} (${profitLossPercent >= 0 ? '+' : ''}${profitLossPercent.toFixed(1)}%)
+                            </div>
+                        </div>
+                    `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // Disconnect wallet
+        function disconnectWallet() {
+            walletConnected = false;
+            userAddress = '';
+            userBalance = 0;
+            userProfile = null;
+            userPortfolio = [];
+
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            const statusDot = document.getElementById('statusDot');
+            const walletStatus = document.getElementById('walletStatus');
+            const walletInfo = document.getElementById('walletInfo');
+
+            statusDot.classList.remove('connected');
+            walletStatus.textContent = 'Wallet Disconnected';
+            walletInfo.classList.add('hidden');
+            connectBtn.classList.remove('hidden');
+            disconnectBtn.classList.add('hidden');
+            connectBtn.disabled = false;
+            connectBtn.innerHTML = 'Connect MetaMask';
+
+            document.getElementById('portfolioSection').classList.add('hidden');
+            document.getElementById('userProfileInfo').classList.add('hidden');
+
+            document.getElementById('stockSelect').value = '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('priceDisplay').classList.add('hidden');
+            document.getElementById('tradeBtn').disabled = true;
+
+            updateStatus('Wallet disconnected successfully.', 'success');
+        }
+
+        // Update price display
+        async function updatePrice() {
+            const stockSelect = document.getElementById('stockSelect');
+            const quantityInput = document.getElementById('quantity');
+            const priceDisplay = document.getElementById('priceDisplay');
+            const tradeBtn = document.getElementById('tradeBtn');
+            const availableShares = document.getElementById('availableShares');
+            const profitLossInfo = document.getElementById('profitLossInfo');
+
+            selectedStock = stockSelect.value;
+            const quantity = parseInt(quantityInput.value) || 0;
+
+            availableShares.classList.add('hidden');
+            profitLossInfo.classList.add('hidden');
+
+            if (selectedStock && quantity > 0) {
+                try {
+                    const response = await fetch(`/api/stock/${selectedStock}/price`);
+                    if (!response.ok) throw new Error('Failed to fetch price');
+
+                    const priceData = await response.json();
+                    currentStockPrice = priceData.price;
+                    const totalAmount = currentStockPrice * quantity;
+
+                    // Check holdings for sell mode
+                    if (currentTradeMode === 'sell' && walletConnected) {
+                        const holding = userPortfolio.find(h => h.symbol === selectedStock);
+                        if (holding) {
+                            const availableQuantity = holding.quantity;
+                            const avgPurchasePrice = holding.averagePrice;
+                            
+                            availableShares.textContent = `(Available: ${availableQuantity} shares)`;
+                            availableShares.classList.remove('hidden');
+
+                            if (quantity <= availableQuantity) {
+                                const profitLoss = (currentStockPrice - avgPurchasePrice) * quantity;
+                                const profitLossPercent = avgPurchasePrice > 0 ? 
+                                    ((currentStockPrice - avgPurchasePrice) / avgPurchasePrice * 100) : 0;
+                                
+                                document.getElementById('profitLossText').innerHTML = `
+                                    Avg Purchase Price: $${avgPurchasePrice.toFixed(2)}<br>
+                                    Profit/Loss: <span class="${profitLoss >= 0 ? 'profit' : 'loss'}">
+                                        ${profitLoss >= 0 ? '+' : ''}$${profitLoss.toFixed(2)} 
+                                        (${profitLossPercent >= 0 ? '+' : ''}${profitLossPercent.toFixed(1)}%)
+                                    </span>
+                                `;
+                                profitLossInfo.classList.remove('hidden');
+                            }
+                        } else {
+                            availableShares.textContent = '(Available: 0 shares)';
+                            availableShares.classList.remove('hidden');
+                        }
+                    }
+
+                    document.getElementById('currentPrice').textContent =
+                        `$${currentStockPrice.toFixed(currentStockPrice < 1 ? 6 : 2)}`;
+                    document.getElementById('quantityDisplay').textContent = quantity;
+                    document.getElementById('totalAmount').textContent = `$${totalAmount.toFixed(2)}`;
+
+                    priceDisplay.classList.remove('hidden');
+
+                    // Enable/disable trade button
+                    if (!walletConnected) {
+                        tradeBtn.disabled = true;
+                        updateStatus('Please connect your wallet to continue.', 'info');
+                    } else if (currentTradeMode === 'buy') {
+                        if (totalAmount > userBalance) {
+                            tradeBtn.disabled = true;
+                            updateStatus(
+                                `Insufficient balance. You need $${totalAmount.toFixed(2)} but only have $${userBalance.toFixed(2)} FLR.`,
+                                'error'
+                            );
+                        } else {
+                            tradeBtn.disabled = false;
+                            updateStatus(
+                                `Ready to purchase ${quantity} shares of ${selectedStock} for $${totalAmount.toFixed(2)}.`,
+                                'info'
+                            );
+                        }
+                    } else { // sell mode
+                        const holding = userPortfolio.find(h => h.symbol === selectedStock);
+                        if (!holding || quantity > holding.quantity) {
+                            tradeBtn.disabled = true;
+                            updateStatus(
+                                `Cannot sell ${quantity} shares. You only have ${holding ? holding.quantity : 0} shares of ${selectedStock}.`,
+                                'error'
+                            );
+                        } else {
+                            tradeBtn.disabled = false;
+                            updateStatus(
+                                `Ready to sell ${quantity} shares of ${selectedStock} for $${totalAmount.toFixed(2)}.`,
+                                'info'
+                            );
+                        }
+                    }
+
+                } catch (error) {
+                    console.error('Error updating price:', error);
+                    updateStatus('Failed to fetch current price. Please try again.', 'error');
+                    priceDisplay.classList.add('hidden');
+                    tradeBtn.disabled = true;
+                }
+            } else {
+                priceDisplay.classList.add('hidden');
+                tradeBtn.disabled = true;
+
+                if (selectedStock && !quantity) {
+                    updateStatus('Please enter the number of shares you want to trade.', 'info');
+                } else if (!selectedStock) {
+                    updateStatus('Select a stock to view pricing information.', 'info');
+                }
+            }
+        }
+
+        // Execute trade
+        async function executeTrade() {
+            if (!walletConnected) {
+                updateStatus('Please connect your wallet first.', 'error');
+                return;
+            }
+
+            if (!databaseOnline) {
+                updateStatus('Database offline. Cannot execute trades in demo mode.', 'error');
+                return;
+            }
+
+            const quantity = parseInt(document.getElementById('quantity').value);
+            if (!quantity || quantity <= 0) {
+                updateStatus('Please enter a valid quantity.', 'error');
+                return;
+            }
+
+            const totalAmount = currentStockPrice * quantity;
+            const tradeBtn = document.getElementById('tradeBtn');
+            const originalText = tradeBtn.textContent;
+
+            tradeBtn.disabled = true;
+            tradeBtn.innerHTML = '<span class="loading"></span>Processing Transaction...';
+
+            try {
+                updateStatus(`Step 1/3: Verifying ${currentTradeMode} order...`, 'info');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                updateStatus('Step 2/3: Checking wallet balance...', 'info');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                updateStatus('Step 3/3: Executing trade...', 'info');
+
+                const endpoint = currentTradeMode === 'buy' ? '/api/execute-trade' : '/api/execute-sell';
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        walletAddress: userAddress,
+                        symbol: selectedStock,
+                        quantity: quantity,
+                        pricePerShare: currentStockPrice
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Transaction failed');
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    if (currentTradeMode === 'buy') {
+                        userBalance = result.details.newBalance;
+                        document.getElementById('walletBalance').textContent = userBalance.toFixed(2);
+
+                        updateStatus(
+                            `Trade successful! Purchased ${quantity} shares of ${selectedStock} for $${totalAmount.toFixed(2)}. 
+                             Transaction ID: ${result.transactionId.slice(0, 10)}...`,
+                            'success'
+                        );
+                    } else { // sell
+                        userBalance = result.details.newBalance;
+                        document.getElementById('walletBalance').textContent = userBalance.toFixed(2);
+
+                        const profitLoss = result.details.profitLoss || 0;
+                        const profitLossPercent = result.details.profitLossPercentage || 0;
+                        const profitLossText = profitLoss >= 0 ? 
+                            `profit of +$${profitLoss.toFixed(2)}` : 
+                            `loss of $${Math.abs(profitLoss).toFixed(2)}`;
+
+                        updateStatus(
+                            `Sale successful! Sold ${quantity} shares of ${selectedStock} for $${totalAmount.toFixed(2)} with a ${profitLossText} (${profitLossPercent >= 0 ? '+' : ''}${profitLossPercent.toFixed(1)}%). 
+                             Transaction ID: ${result.transactionId.slice(0, 10)}...`,
+                            'success'
+                        );
+                    }
+
+                    // Reset form
+                    document.getElementById('stockSelect').value = '';
+                    document.getElementById('quantity').value = '';
+                    document.getElementById('priceDisplay').classList.add('hidden');
+                    document.getElementById('availableShares').classList.add('hidden');
+                    document.getElementById('profitLossInfo').classList.add('hidden');
+                    selectedStock = '';
+
+                    // Refresh user data
+                    await loadUserData();
+
+                } else {
+                    throw new Error(result.error || 'Transaction failed');
+                }
+
+            } catch (error) {
+                console.error('Trade execution failed:', error);
+                updateStatus(`Transaction failed: ${error.message}. Please try again.`, 'error');
+            } finally {
+                tradeBtn.disabled = false;
+                tradeBtn.innerHTML = originalText;
+            }
+        }
+
+        // Refresh portfolio
+        async function refreshPortfolio() {
+            await loadUserPortfolio();
+            updateStatus('Portfolio refreshed', 'success');
+        }
+
+        // Update status display
+        function updateStatus(message, type) {
+            const statusContainer = document.getElementById('statusContainer');
+            const statusClass = `status-${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+
+            statusContainer.innerHTML = `
+                <div class="status-message ${statusClass}">
+                    ${message}
+                    <div style="font-size: 0.8rem; margin-top: 8px; opacity: 0.7;">
+                        ${timestamp}
+                    </div>
+                </div>`;
+        }
+
+        console.log('🚀 DeFi Stock Trading Platform with BUY/SELL functionality ready!');
+    </script>
+</body>
+
+</html>

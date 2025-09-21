@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Portfolio Analyzer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, #8b5cf6, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .section {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #8b5cf6, #a855f7);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+        }
+
+        .btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .results-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .summary-title {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .chart-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .recommendation-card {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #10b981;
+            transition: transform 0.2s ease;
+        }
+
+        .recommendation-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .asset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .asset-symbol {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .asset-category {
+            font-size: 0.8rem;
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .allocation-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .allocation-metric {
+            text-align: center;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .metric-label {
+            display: block;
+            font-size: 0.75rem;
+            color: #666;
+            margin-bottom: 2px;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .reasoning {
+            font-size: 0.9rem;
+            color: #4a5568;
+            line-height: 1.4;
+            margin-top: 8px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border-left: 3px solid #8b5cf6;
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+            border-left: 4px solid #10b981;
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 4px solid #ef4444;
+        }
+
+        .status-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #8b5cf6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .chart-section {
+                grid-template-columns: 1fr;
+            }
+
+            .allocation-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+<div class="container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
+        <div class="header">
+            <h1>AI Portfolio Builder</h1>
+            <p style="color: #666; font-size: 1.1rem;">Advanced multi-asset investment builder powered by AI</p>
+        </div>
+        <!-- AI Portfolio Analyzer Section -->
+        <div class="portfolio-analyzer-section">
+            <h2>🤖 AI Portfolio Analyzer</h2>
+            <p>Get personalized investment recommendations across multiple asset classes including stocks, crypto, bonds, and commodities.</p>
+            <ul class="service-features" style="list-style: none; padding: 0;">
+                <li>✔ Multi-asset portfolio optimization</li>
+                <li>✔ Risk assessment and analysis</li>
+                <li>✔ Performance projections</li>
+                <li>✔ Diversification recommendations</li>
+                <li>✔ Real-time market insights</li>
+            </ul>
+        </div>
+</div>
+
+
+        <!-- Input Form -->
+        <div class="section">
+            <h2 style="color: #2d3748; margin-bottom: 20px;">Investment Profile Assessment</h2>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="userAge">Age Range:</label>
+                    <select id="userAge">
+                        <option value="">Select your age</option>
+                        <option value="18">18-25 (High Growth Focus)</option>
+                        <option value="30">26-35 (Aggressive Growth)</option>
+                        <option value="40">36-45 (Balanced Approach)</option>
+                        <option value="50">46-55 (Conservative Growth)</option>
+                        <option value="60">56+ (Income & Preservation)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="userIncome">Income Stability:</label>
+                    <select id="userIncome">
+                        <option value="">Select income type</option>
+                        <option value="very_stable">Very Stable (Government/Fortune 500)</option>
+                        <option value="stable">Stable (Established Company)</option>
+                        <option value="moderate">Moderate (Small Business/Contract)</option>
+                        <option value="variable">Variable (Commission/Gig Economy)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="userTimeline">Investment Timeline:</label>
+                    <select id="userTimeline">
+                        <option value="">How long will you invest?</option>
+                        <option value="short_term">1-3 years (Safety Priority)</option>
+                        <option value="medium_term">4-10 years (Balanced Growth)</option>
+                        <option value="long_term">10+ years (Maximum Growth)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="userRisk">Risk Tolerance:</label>
+                    <select id="userRisk">
+                        <option value="">How much risk can you handle?</option>
+                        <option value="low">Low - Preserve my capital above all</option>
+                        <option value="medium">Medium - Balance safety and growth</option>
+                        <option value="high">High - Maximize potential returns</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="userAmount">Investment Amount ($):</label>
+                <input type="number" id="userAmount" min="1000" max="10000000"
+                    placeholder="Enter your investment amount (minimum $1,000)" />
+                <small style="color: #666; font-size: 0.85rem;">
+                    Larger amounts enable more sophisticated diversification strategies
+                </small>
+            </div>
+
+            <button class="btn" onclick="runAdvancedAnalysis()" style="width: 100%; padding: 20px; font-size: 1.2rem;"
+                id="analyzeBtn">
+                🎯 Analyze & Generate AI Recommendations
+            </button>
+        </div>
+
+        <!-- Status Display -->
+        <div id="statusContainer">
+            <div class="status-message status-info">
+                Complete the form above to receive personalized AI portfolio recommendations
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="analysisResults" class="hidden">
+            <!-- Executive Summary -->
+            <div class="section results-container">
+                <h2 style="color: #2d3748; margin-bottom: 20px;">Your Personalized Investment Strategy</h2>
+
+                <div class="summary-grid" id="summaryCards">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Allocation Visualization -->
+            <div class="section results-container">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">Smart Asset Allocation</h3>
+                <div class="chart-section">
+                    <div style="text-align: center;">
+                        <canvas id="allocationChart" width="350" height="350"></canvas>
+                    </div>
+                    <div id="allocationDetails">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Recommendations -->
+            <div class="section results-container">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">Top AI Recommendations</h3>
+                <div id="recommendationsContainer">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Performance Projection -->
+            <div class="section results-container">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">12-Month Performance Projection</h3>
+                <canvas id="performanceChart" width="400" height="200"></canvas>
+                <div id="performanceMetrics" style="margin-top: 20px;">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Risk Analysis -->
+            <div class="section results-container">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">Risk Analysis Report</h3>
+                <div id="riskReport">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+
+        <div
+            style="text-align: center; margin-top: 40px; padding: 20px; background: rgba(255, 255, 255, 0.1); border-radius: 15px; color: #666;">
+            <p><strong>AI Portfolio Analyzer</strong> - Powered by Advanced Market Intelligence</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                This analysis considers multiple asset classes and market conditions for optimal portfolio construction
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let allocationChart = null;
+        let performanceChart = null;
+
+        // Asset database with current market data
+        const assetDatabase = {
+            // Stocks
+            'AAPL': { name: 'Apple Inc.', category: 'Technology', expectedReturn: 0.12, volatility: 0.25, risk: 'Medium' },
+            'MSFT': { name: 'Microsoft Corp.', category: 'Technology', expectedReturn: 0.11, volatility: 0.23, risk: 'Medium' },
+            'GOOGL': { name: 'Alphabet Inc.', category: 'Technology', expectedReturn: 0.13, volatility: 0.28, risk: 'Medium' },
+            'AMZN': { name: 'Amazon.com Inc.', category: 'Consumer Discretionary', expectedReturn: 0.14, volatility: 0.32, risk: 'High' },
+            'TSLA': { name: 'Tesla Inc.', category: 'Automotive', expectedReturn: 0.18, volatility: 0.45, risk: 'High' },
+            'NVDA': { name: 'NVIDIA Corp.', category: 'Semiconductors', expectedReturn: 0.20, volatility: 0.40, risk: 'High' },
+            'JPM': { name: 'JPMorgan Chase', category: 'Financial Services', expectedReturn: 0.09, volatility: 0.22, risk: 'Medium' },
+            'JNJ': { name: 'Johnson & Johnson', category: 'Healthcare', expectedReturn: 0.07, volatility: 0.15, risk: 'Low' },
+            'PG': { name: 'Procter & Gamble', category: 'Consumer Staples', expectedReturn: 0.06, volatility: 0.14, risk: 'Low' },
+            'KO': { name: 'Coca-Cola Co.', category: 'Beverages', expectedReturn: 0.05, volatility: 0.16, risk: 'Low' },
+
+            // Crypto
+            'BTC': { name: 'Bitcoin', category: 'Cryptocurrency', expectedReturn: 0.25, volatility: 0.80, risk: 'Very High' },
+            'ETH': { name: 'Ethereum', category: 'Cryptocurrency', expectedReturn: 0.30, volatility: 0.85, risk: 'Very High' },
+            'SOL': { name: 'Solana', category: 'Cryptocurrency', expectedReturn: 0.35, volatility: 0.95, risk: 'Very High' },
+
+            // Bonds
+            'US10Y': { name: 'US 10-Year Treasury', category: 'Government Bonds', expectedReturn: 0.04, volatility: 0.08, risk: 'Very Low' },
+            'CORPORATE': { name: 'Corporate Bond Index', category: 'Corporate Bonds', expectedReturn: 0.05, volatility: 0.12, risk: 'Low' },
+
+            // Commodities
+            'GOLD': { name: 'Gold', category: 'Precious Metals', expectedReturn: 0.06, volatility: 0.20, risk: 'Medium' },
+            'SILVER': { name: 'Silver', category: 'Precious Metals', expectedReturn: 0.08, volatility: 0.30, risk: 'Medium' },
+
+            // ETFs
+            'SPY': { name: 'S&P 500 ETF', category: 'Index Fund', expectedReturn: 0.10, volatility: 0.18, risk: 'Medium' },
+            'QQQ': { name: 'NASDAQ 100 ETF', category: 'Technology ETF', expectedReturn: 0.12, volatility: 0.22, risk: 'Medium' },
+            'VTI': { name: 'Total Stock Market ETF', category: 'Index Fund', expectedReturn: 0.09, volatility: 0.17, risk: 'Medium' },
+            'VXUS': { name: 'International Stocks ETF', category: 'International', expectedReturn: 0.08, volatility: 0.20, risk: 'Medium' }
+        };
+
+        async function runAdvancedAnalysis() {
+            const profile = {
+                age: parseInt(document.getElementById('userAge').value),
+                incomeStability: document.getElementById('userIncome').value,
+                timeline: document.getElementById('userTimeline').value,
+                riskTolerance: document.getElementById('userRisk').value
+            };
+
+            const investmentAmount = parseFloat(document.getElementById('userAmount').value);
+
+            if (!profile.age || !profile.incomeStability || !profile.timeline ||
+                !profile.riskTolerance || !investmentAmount || investmentAmount < 1000) {
+                updateStatus('Please complete all fields with minimum $1,000 investment.', 'error');
+                return;
+            }
+
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            analyzeBtn.disabled = true;
+            analyzeBtn.innerHTML = '<div class="loading"></div>Analyzing...';
+
+            try {
+                updateStatus('AI analyzing global markets across all asset classes...', 'info');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                updateStatus('Optimizing portfolio allocation based on your profile...', 'info');
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                updateStatus('Generating personalized recommendations...', 'info');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                const analysis = generateAIAnalysis(profile, investmentAmount);
+                displayResults(analysis);
+                updateStatus('Advanced AI analysis completed successfully!', 'success');
+
+            } catch (error) {
+                console.error('Analysis error:', error);
+                updateStatus('Analysis failed: ' + error.message, 'error');
+            } finally {
+                analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = '🎯 Analyze & Generate AI Recommendations';
+            }
+        }
+        
+
+        function generateAIAnalysis(profile, investmentAmount) {
+            // Generate portfolio based on user profile
+            const allocation = generateSmartAllocation(profile, investmentAmount);
+            const metrics = calculatePortfolioMetrics(allocation);
+            const summary = generateSummary(allocation, metrics, investmentAmount);
+
+            return {
+                allocation,
+                metrics,
+                report: { summary }
+            };
+        }
+
+        function generateSmartAllocation(profile, investmentAmount) {
+            let stockWeight = 0.6;
+            let bondWeight = 0.3;
+            let cryptoWeight = 0.05;
+            let commodityWeight = 0.05;
+
+            // Adjust based on age
+            if (profile.age <= 30) {
+                stockWeight = 0.75;
+                bondWeight = 0.15;
+                cryptoWeight = 0.08;
+                commodityWeight = 0.02;
+            } else if (profile.age >= 50) {
+                stockWeight = 0.45;
+                bondWeight = 0.45;
+                cryptoWeight = 0.02;
+                commodityWeight = 0.08;
+            }
+
+            // Adjust based on risk tolerance
+            if (profile.riskTolerance === 'high') {
+                stockWeight += 0.15;
+                cryptoWeight += 0.05;
+                bondWeight -= 0.20;
+            } else if (profile.riskTolerance === 'low') {
+                bondWeight += 0.20;
+                stockWeight -= 0.15;
+                cryptoWeight -= 0.03;
+                commodityWeight -= 0.02;
+            }
+
+            // Adjust based on timeline
+            if (profile.timeline === 'long_term') {
+                stockWeight += 0.10;
+                bondWeight -= 0.10;
+            } else if (profile.timeline === 'short_term') {
+                bondWeight += 0.15;
+                stockWeight -= 0.10;
+                cryptoWeight -= 0.03;
+                commodityWeight -= 0.02;
+            }
+
+            // Select specific assets
+            const allocation = {};
+
+            // Select stocks
+            const stockAmount = investmentAmount * stockWeight;
+            const selectedStocks = selectTopAssets(['AAPL', 'MSFT', 'GOOGL', 'NVDA', 'JPM', 'JNJ', 'PG'], profile, stockAmount);
+            Object.assign(allocation, selectedStocks);
+
+            // Select bonds
+            const bondAmount = investmentAmount * bondWeight;
+            if (bondAmount > 0) {
+                allocation['US10Y'] = createAssetAllocation('US10Y', bondAmount * 0.7, investmentAmount);
+                allocation['CORPORATE'] = createAssetAllocation('CORPORATE', bondAmount * 0.3, investmentAmount);
+            }
+
+            // Select crypto
+            const cryptoAmount = investmentAmount * cryptoWeight;
+            if (cryptoAmount > 0) {
+                allocation['BTC'] = createAssetAllocation('BTC', cryptoAmount * 0.6, investmentAmount);
+                allocation['ETH'] = createAssetAllocation('ETH', cryptoAmount * 0.4, investmentAmount);
+            }
+
+            // Select commodities
+            const commodityAmount = investmentAmount * commodityWeight;
+            if (commodityAmount > 0) {
+                allocation['GOLD'] = createAssetAllocation('GOLD', commodityAmount, investmentAmount);
+            }
+
+            return allocation;
+        }
+
+        function selectTopAssets(symbols, profile, totalAmount) {
+            const assets = symbols.map(symbol => ({
+                symbol,
+                ...assetDatabase[symbol],
+                score: calculateAssetScore(symbol, profile)
+            })).sort((a, b) => b.score - a.score);
+
+            const selected = {};
+            const topCount = Math.min(5, symbols.length);
+
+            for (let i = 0; i < topCount; i++) {
+                const asset = assets[i];
+                const weight = (topCount - i) / (topCount * (topCount + 1) / 2);
+                const amount = totalAmount * weight;
+                selected[asset.symbol] = createAssetAllocation(asset.symbol, amount, totalAmount);
+            }
+
+            return selected;
+        }
+
+        function calculateAssetScore(symbol, profile) {
+            const asset = assetDatabase[symbol];
+            let score = asset.expectedReturn * 10;
+
+            // Risk adjustment
+            if (profile.riskTolerance === 'low' && asset.volatility > 0.3) {
+                score -= 5;
+            } else if (profile.riskTolerance === 'high' && asset.volatility < 0.2) {
+                score -= 2;
+            }
+
+            // Age adjustment
+            if (profile.age <= 30 && asset.category === 'Technology') {
+                score += 3;
+            } else if (profile.age >= 50 && asset.risk === 'Low') {
+                score += 2;
+            }
+
+            // Timeline adjustment
+            if (profile.timeline === 'long_term' && asset.expectedReturn > 0.12) {
+                score += 2;
+            }
+
+            return score + Math.random() * 2; // Add some randomness
+        }
+
+        function createAssetAllocation(symbol, amount, totalInvestment) {
+            const asset = assetDatabase[symbol];
+            const percentage = Math.round((amount / totalInvestment) * 100);
+            const projectedGain = amount * asset.expectedReturn;
+
+            return {
+                symbol,
+                name: asset.name,
+                category: asset.category,
+                amount: Math.round(amount),
+                percentage,
+                expectedReturn: asset.expectedReturn,
+                volatility: asset.volatility,
+                risk: asset.risk,
+                projectedValue1Year: Math.round(amount * (1 + asset.expectedReturn)),
+                projectedGain: Math.round(projectedGain),
+                score: calculateAssetScore(symbol, {}) + 10,
+                reasoning: generateAssetReasoning(symbol, asset)
+            };
+        }
+
+        function generateAssetReasoning(symbol, asset) {
+            const reasoningMap = {
+                'AAPL': 'Strong ecosystem with loyal customer base and consistent innovation in consumer technology.',
+                'MSFT': 'Dominant position in cloud computing and enterprise software with recurring revenue model.',
+                'GOOGL': 'Leading search engine with growing cloud and AI capabilities, strong advertising revenue.',
+                'NVDA': 'AI revolution leader with critical GPU technology for machine learning and data centers.',
+                'JPM': 'Top-tier bank with diversified revenue streams and strong balance sheet.',
+                'JNJ': 'Stable healthcare giant with diversified pharmaceutical and consumer products.',
+                'PG': 'Defensive consumer staples with strong brand portfolio and dividend history.',
+                'BTC': 'Digital gold providing portfolio diversification and inflation hedge potential.',
+                'ETH': 'Leading smart contract platform with growing DeFi and NFT ecosystem.',
+                'US10Y': 'Safe haven government bonds providing stability and income in volatile markets.',
+                'GOLD': 'Traditional store of value and inflation hedge during uncertain economic times.'
+            };
+
+            return reasoningMap[symbol] || `Strong ${asset.category.toLowerCase()} asset with ${(asset.expectedReturn * 100).toFixed(1)}% expected annual return.`;
+        }
+
+        function calculatePortfolioMetrics(allocation) {
+            const assets = Object.values(allocation);
+            const expectedReturn = assets.reduce((sum, asset) => sum + (asset.expectedReturn * asset.percentage / 100), 0);
+            const volatility = Math.sqrt(assets.reduce((sum, asset) => sum + Math.pow(asset.volatility * asset.percentage / 100, 2), 0));
+
+            let riskLevel = 'Medium';
+            if (volatility < 0.15) riskLevel = 'Low';
+            else if (volatility > 0.25) riskLevel = 'High';
+
+            return {
+                expectedReturn: (expectedReturn * 100).toFixed(1) + '%',
+                volatility: (volatility * 100).toFixed(1),
+                sharpeRatio: (expectedReturn / volatility).toFixed(2),
+                riskLevel,
+                diversificationScore: Math.min(95, assets.length * 15 + 10)
+            };
+        }
+
+        function generateSummary(allocation, metrics, investmentAmount) {
+            const expectedReturn = parseFloat(metrics.expectedReturn) / 100;
+            const projectedValue = Math.round(investmentAmount * (1 + expectedReturn));
+
+            return {
+                totalInvestment: investmentAmount,
+                expectedAnnualReturn: metrics.expectedReturn,
+                projectedValue1Year: projectedValue,
+                riskLevel: metrics.riskLevel,
+                diversificationScore: metrics.diversificationScore + '/100'
+            };
+        }
+
+        function displayResults(analysis) {
+            displayExecutiveSummary(analysis.report.summary);
+            displayAllocationDetails(analysis.allocation);
+            displayRecommendations(analysis.allocation);
+            displayRiskAnalysis(analysis.metrics);
+            createAllocationChart(analysis.allocation);
+            createPerformanceChart(analysis.report.summary);
+
+            document.getElementById('analysisResults').classList.remove('hidden');
+            document.getElementById('analysisResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function displayExecutiveSummary(summary) {
+            const container = document.getElementById('summaryCards');
+
+            const gain = summary.projectedValue1Year - summary.totalInvestment;
+            const gainPercentage = (gain / summary.totalInvestment * 100).toFixed(1);
+
+            container.innerHTML = `
+                <div class="summary-card">
+                    <div class="summary-title">Total Investment</div>
+                    <div class="summary-value">$${summary.totalInvestment.toLocaleString()}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-title">Expected Annual Return</div>
+                    <div class="summary-value" style="color: #10b981;">${summary.expectedAnnualReturn}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-title">Projected 1-Year Value</div>
+                    <div class="summary-value">$${summary.projectedValue1Year.toLocaleString()}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-title">Expected Gain</div>
+                    <div class="summary-value" style="color: #10b981;">$${gain.toLocaleString()}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-title">Risk Level</div>
+                    <div class="summary-value" style="color: ${summary.riskLevel === 'Low' ? '#10b981' : summary.riskLevel === 'Medium' ? '#f59e0b' : '#ef4444'};">${summary.riskLevel}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-title">Diversification Score</div>
+                    <div class="summary-value">${summary.diversificationScore}</div>
+                </div>
+            `;
+        }
+
+        function displayAllocationDetails(allocation) {
+            const container = document.getElementById('allocationDetails');
+            const colors = {
+                'BTC': '#f7931a', 'ETH': '#627eea', 'AAPL': '#007aff', 'GOOGL': '#4285f4',
+                'MSFT': '#00bcf2', 'NVDA': '#76b900', 'JPM': '#0066cc', 'JNJ': '#cc0000',
+                'PG': '#005cb9', 'US10Y': '#2d5aa0', 'CORPORATE': '#4a90e2', 'GOLD': '#ffd700'
+            };
+
+            container.innerHTML = `
+                <h4 style="color: #2d3748; margin-bottom: 15px;">Asset Breakdown</h4>
+                ${Object.keys(allocation).map(symbol => {
+                const asset = allocation[symbol];
+                return `
+                        <div style="padding: 15px; margin-bottom: 10px; background: white; border-radius: 8px; border-left: 4px solid ${colors[symbol] || '#8b5cf6'}; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div>
+                                    <strong style="color: #2d3748;">${asset.symbol}</strong>
+                                    <span style="color: #666; margin-left: 8px; font-size: 0.9rem;">${asset.category}</span>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-weight: bold; color: ${colors[symbol] || '#8b5cf6'}; font-size: 1.1rem;">${asset.percentage}%</div>
+                                    <div style="font-size: 0.85rem; color: #666;">$${asset.amount.toLocaleString()}</div>
+                                </div>
+                            </div>
+                            <div style="font-size: 0.8rem; color: #666;">
+                                Expected Return: <strong style="color: #10b981;">${(asset.expectedReturn * 100).toFixed(1)}%</strong> |
+                                Risk: <strong>${asset.risk}</strong> |
+                                AI Score: <strong>${asset.score.toFixed(1)}</strong>
+                            </div>
+                        </div>
+                    `;
+            }).join('')}
+            `;
+        }
+
+        function displayRecommendations(allocation) {
+            const container = document.getElementById('recommendationsContainer');
+            const topAssets = Object.values(allocation)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 3);
+
+            container.innerHTML = topAssets.map((asset, index) => `
+                <div class="recommendation-card">
+                    <div class="asset-header">
+                        <div class="asset-symbol">🏆 Top Pick #${index + 1}: ${asset.symbol} - ${asset.name}</div>
+                        <div style="font-weight: bold; color: #10b981; font-size: 1.1rem;">
+                            ${(asset.expectedReturn * 100).toFixed(1)}% Expected Return
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <strong>Investment Amount:</strong> $${asset.amount.toLocaleString()} (${asset.percentage}% of portfolio)
+                    </div>
+                    
+                    <div class="reasoning">
+                        <strong>AI Analysis:</strong> ${asset.reasoning}
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; font-size: 0.85rem;">
+                        <div style="text-align: center; padding: 8px; background: white; border-radius: 6px;">
+                            <div style="color: #666;">Projected Gain</div>
+                            <div style="font-weight: bold; color: #10b981;">+$${asset.projectedGain.toLocaleString()}</div>
+                        </div>
+                        <div style="text-align: center; padding: 8px; background: white; border-radius: 6px;">
+                            <div style="color: #666;">Risk Level</div>
+                            <div style="font-weight: bold;">${asset.risk}</div>
+                        </div>
+                        <div style="text-align: center; padding: 8px; background: white; border-radius: 6px;">
+                            <div style="color: #666;">AI Confidence</div>
+                            <div style="font-weight: bold; color: #8b5cf6;">${asset.score > 20 ? 'High' : asset.score > 15 ? 'Medium' : 'Moderate'}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayRiskAnalysis(metrics) {
+            const container = document.getElementById('riskReport');
+            const riskColor = metrics.riskLevel === 'Low' ? '#10b981' :
+                metrics.riskLevel === 'Medium' ? '#f59e0b' : '#ef4444';
+
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 10px;">
+                        <h4 style="color: #2d3748; margin-bottom: 15px;">Risk Analysis</h4>
+                        <div style="margin-bottom: 10px;">
+                            <span>Portfolio Volatility:</span>
+                            <strong style="float: right; color: ${riskColor};">${metrics.volatility}%</strong>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <span>Sharpe Ratio:</span>
+                            <strong style="float: right;">${metrics.sharpeRatio}</strong>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <span>Risk Level:</span>
+                            <strong style="float: right; color: ${riskColor};">${metrics.riskLevel}</strong>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f0fdf4; padding: 20px; border-radius: 10px;">
+                        <h4 style="color: #2d3748; margin-bottom: 15px;">Portfolio Quality</h4>
+                        <div style="margin-bottom: 10px;">
+                            <span>Diversification Score:</span>
+                            <strong style="float: right; color: #10b981;">${metrics.diversificationScore}/100</strong>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <span>Expected Return:</span>
+                            <strong style="float: right; color: #10b981;">${metrics.expectedReturn}</strong>
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <span>Risk-Adjusted Return:</span>
+                            <strong style="float: right;">${(parseFloat(metrics.expectedReturn) / parseFloat(metrics.volatility)).toFixed(2)}</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #fef3c7; padding: 20px; border-radius: 10px; border-left: 4px solid #f59e0b;">
+                    <strong>Important Disclaimer:</strong> This analysis is for educational purposes only. 
+                    Past performance doesn't guarantee future results. Market conditions can change rapidly. 
+                    Always consult with a qualified financial advisor and consider your complete financial situation 
+                    before making investment decisions.
+                </div>
+            `;
+        }
+
+        function createAllocationChart(allocation) {
+            const canvas = document.getElementById('allocationChart');
+            const ctx = canvas.getContext('2d');
+
+            if (allocationChart) allocationChart.destroy();
+
+            const labels = Object.keys(allocation).map(symbol => {
+                const asset = allocation[symbol];
+                return `${asset.symbol} (${asset.percentage}%)`;
+            });
+
+            const data = Object.values(allocation).map(item => item.percentage);
+            const colors = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#84cc16', '#f97316'];
+
+            allocationChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 3,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 20, usePointStyle: true }
+                        },
+                        title: {
+                            display: true,
+                            text: 'AI-Optimized Asset Allocation',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createPerformanceChart(summary) {
+            const canvas = document.getElementById('performanceChart');
+            const ctx = canvas.getContext('2d');
+
+            if (performanceChart) performanceChart.destroy();
+
+            const months = ['Start', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const monthlyReturn = parseFloat(summary.expectedAnnualReturn) / 100 / 12;
+            const projectionData = [];
+            let currentValue = summary.totalInvestment;
+
+            projectionData.push(currentValue);
+            for (let i = 1; i <= 12; i++) {
+                currentValue *= (1 + monthlyReturn + (Math.random() - 0.5) * 0.015);
+                projectionData.push(Math.round(currentValue));
+            }
+
+            performanceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Portfolio Value',
+                        data: projectionData,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#8b5cf6',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: `Projected End Value: $${projectionData[12].toLocaleString()} (+${((projectionData[12] - summary.totalInvestment) / summary.totalInvestment * 100).toFixed(1)}%)`,
+                            font: { size: 14, weight: 'bold' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function (value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const metricsContainer = document.getElementById('performanceMetrics');
+            const finalValue = projectionData[12];
+            const totalGain = finalValue - summary.totalInvestment;
+            const returnPercentage = (totalGain / summary.totalInvestment * 100).toFixed(1);
+
+            metricsContainer.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 0.85rem; color: #666;">Starting Value</div>
+                        <div style="font-size: 1.2rem; font-weight: bold;">$${summary.totalInvestment.toLocaleString()}</div>
+                    </div>
+                    <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 0.85rem; color: #666;">Projected End Value</div>
+                        <div style="font-size: 1.2rem; font-weight: bold; color: #10b981;">$${finalValue.toLocaleString()}</div>
+                    </div>
+                    <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 0.85rem; color: #666;">Total Gain</div>
+                        <div style="font-size: 1.2rem; font-weight: bold; color: #10b981;">+$${totalGain.toLocaleString()}</div>
+                    </div>
+                    <div style="background: #f0fdf4; padding: 15px; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 0.85rem; color: #666;">Return Percentage</div>
+                        <div style="font-size: 1.2rem; font-weight: bold; color: #10b981;">+${returnPercentage}%</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateStatus(message, type) {
+            const statusContainer = document.getElementById('statusContainer');
+            const statusClass = `status-${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+
+            statusContainer.innerHTML =
+                `<div class="status-message ${statusClass}">
+                    ${message}
+                    <div style="font-size: 0.8rem; margin-top: 8px; opacity: 0.7;">
+                        ${timestamp}
+                    </div>
+                </div>`;
+        }
+
+        console.log('AI Portfolio Analyzer ready - No backend required!');
+    </script>
+</body>
+
+</html>
