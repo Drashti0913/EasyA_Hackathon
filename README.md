@@ -104,24 +104,24 @@ Block Explorer: https://coston2-explorer.flare.network/
 
 ### FTSO Integration 
 The platform leverages Flare's Time Series Oracle for:
--Real-time price feeds across all asset categories
--Decentralized price discovery
--High-frequency price updates
--Cross-asset price correlations
+ -Real-time price feeds across all asset categories
+ -Decentralized price discovery
+ -High-frequency price updates
+ -Cross-asset price correlations
 
 ### Supported FTSO Feeds
 
--Crypto: BTC/USD, ETH/USD, XRP/USD, ADA/USD, DOT/USD, SOL/USD
--Stocks: AAPL, GOOGL, MSFT, AMZN, TSLA, META, NFLX, NVDA
--Metals: XAU/USD, XAG/USD, XPT/USD, XPD/USD
+ -Crypto: BTC/USD, ETH/USD, XRP/USD, ADA/USD, DOT/USD, SOL/USD
+ -Stocks: AAPL, GOOGL, MSFT, AMZN, TSLA, META, NFLX, NVDA
+ -Metals: XAU/USD, XAG/USD, XPT/USD, XPD/USD
 
 ### Security Features
 
--Client-side Only: No backend servers or databases
--MetaMask Integration: Secure wallet connection
--Testnet Environment: No real funds at risk
--Transaction Verification: All trades verified on-chain
--Network Validation: Automatic network switching
+ -Client-side Only: No backend servers or databases
+ -MetaMask Integration: Secure wallet connection
+ -Testnet Environment: No real funds at risk
+ -Transaction Verification: All trades verified on-chain
+ -Network Validation: Automatic network switching
 
 ### File Structure
 defi-multi-asset-trading/
@@ -138,17 +138,106 @@ defi-multi-asset-trading/
 
  ### Browser Compatibility 
  -Chrome: v90+
--Firefox: v88+
--Safari: v14+
--Edge: v90+
--Mobile: iOS Safari, Chrome Mobile
+ -Firefox: v88+
+ -Safari: v14+
+ -Edge: v90+
+ -Mobile: iOS Safari, Chrome Mobile
 
 ### Known Limitations
 
-Testnet Only: Currently operates on Coston2 testnet
-Mock Backend: Simulated API responses for demonstration
-Limited Assets: Predefined set of tradeable assets
-Demo Transactions: No actual blockchain transactions in current version
+-Testnet Only: Currently operates on Coston2 testnet
+-Mock Backend: Simulated API responses for demonstration
+-Limited Assets: Predefined set of tradeable assets
+-Demo Transactions: No actual blockchain transactions in current version
+
+### Development Roadmap
+ Phase 1 (Current)
+
+ Multi-asset category selection
+ FTSO price integration
+ Basic trading interface
+ Portfolio tracking
+
+ Phase 2 (Planned)
+
+ Real blockchain transactions
+ Advanced charting
+ Price alerts
+ Trading history export
+
+ Phase 3 (Future)
+
+ Mainnet deployment
+ Additional asset categories
+ Advanced order types
+ Social trading features
+ 
+ ### Contributing
+
+Fork the repository
+Create a feature branch (git checkout -b feature/amazing-feature)
+Commit your changes (git commit -m 'Add amazing feature')
+Push to the branch (git push origin feature/amazing-feature)
+Open a Pull Request
+
+### Testing
+Manual Testing Checklist
+
+ Wallet connection/disconnection
+ Asset category selection
+ Buy/sell trade execution
+ Portfolio updates
+ Price refresh functionality
+ Mobile responsiveness
+
+Test Coverage
+
+Unit tests for trading logic
+Integration tests for FTSO connectivity
+E2E tests for user workflows
+### Troubleshooting
+Common Issues
+MetaMask Not Detected
+
+Ensure MetaMask extension is installed and enabled
+Refresh the page and try again
+
+Network Switch Failed
+
+Manually add Coston2 network to MetaMask
+Check network configuration details above
+
+Transaction Failed
+
+Verify sufficient C2FLR balance
+Check network connectivity
+Retry after a few seconds
+
+Price Data Not Loading
+
+Check FTSO network status
+Refresh the application
+Verify testnet connectivity
+
+### License
+This project is licensed under the MIT License - see the LICENSE file for details.
+### Disclaimer
+IMPORTANT: This is a testnet demonstration application. No real funds are involved. Do not send real cryptocurrency or attempt to trade with actual assets. This platform is for educational and testing purposes only.
+### Support
+For questions, issues, or contributions:
+
+Create an issue on GitHub
+Join our community discussions
+Check the documentation in /docs
+
+### Acknowledgments
+
+Flare Network team for FTSO infrastructure
+MetaMask for wallet integration
+Ethers.js for blockchain connectivity
+The DeFi community for inspiration
+```
+
 
 
 
