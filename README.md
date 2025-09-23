@@ -286,6 +286,12 @@ MetaMask for wallet integration
 Ethers.js for blockchain connectivity
 
 The DeFi community for inspiration
+
+
+<img width="1918" height="970" alt="heehe" src="https://github.com/user-attachments/assets/31a27d58-8837-4802-b67f-fc70692b0fa8" />
+
+
+
 ```
 
 
